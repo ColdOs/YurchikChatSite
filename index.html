@@ -3,159 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Messenger Template</title>
+    <title>Nexus OS — Engineering the Future</title>
     <style>
         :root {
-            --bg-main: #f0f2f5;
-            --bg-side: #ffffff;
-            --primary: #0084ff;
-            --text-main: #1c1e21;
-            --text-muted: #65676b;
-            --border: #e4e6eb;
-            --msg-in: #e4e6eb;
-            --msg-out: #0084ff;
+            --bg: #030303;
+            --primary: #00f2ff;
+            --secondary: #7000ff;
+            --accent: #ff0055;
+            --surface: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --font-mono: 'Fira Code', monospace;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg-main); height: 100vh; overflow: hidden; }
+        
+        body {
+            background-color: var(--bg);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Отключаем обычный скролл body */
+        }
 
-        /* Основной контейнер-сетка */
-        .app-container {
-            display: grid;
-            grid-template-columns: 80px 350px 1fr;
+        /* КОНТЕЙНЕР ДЛЯ СКРОЛЛ-ХАЙДЖЕКИНГА */
+        .snap-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        section {
             height: 100vh;
             width: 100vw;
-        }
-
-        /* 1. Глобальная навигация (иконки сервисов) */
-        .nav-rail {
-            background: #242526;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
-            gap: 20px;
-        }
-        .nav-item { width: 48px; height: 48px; background: #3a3b3c; border-radius: 12px; cursor: pointer; }
-
-        /* 2. Список чатов */
-        .sidebar {
-            background: var(--bg-side);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
-        .search-bar { width: 100%; padding: 10px; border-radius: 20px; border: none; background: var(--bg-main); }
-        
-        .chat-list { overflow-y: auto; flex-grow: 1; }
-        .chat-item { 
-            display: flex; padding: 15px; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s;
-        }
-        .chat-item:hover { background: var(--bg-main); }
-        .avatar { width: 48px; height: 48px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
-        .chat-info { flex-grow: 1; overflow: hidden; }
-        .chat-name { font-weight: 600; margin-bottom: 4px; }
-        .chat-last-msg { font-size: 0.9em; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* 3. Основная область чата */
-        .main-chat {
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-side);
-        }
-        .chat-header { 
-            height: 64px; border-bottom: 1px solid var(--border); 
-            display: flex; align-items: center; padding: 0 20px; justify-content: space-between;
-        }
-
-        /* Область сообщений */
-        .messages-container {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .message { max-width: 60%; padding: 10px 16px; border-radius: 18px; font-size: 0.95em; position: relative; }
-        .message.incoming { align-self: flex-start; background: var(--msg-in); color: var(--text-main); border-bottom-left-radius: 4px; }
-        .message.outgoing { align-self: flex-end; background: var(--msg-out); color: white; border-bottom-right-radius: 4px; }
-
-        /* Поле ввода */
-        .input-area {
-            padding: 20px;
-            border-top: 1px solid var(--border);
+            scroll-snap-align: start;
+            position: relative;
             display: flex;
             align-items: center;
+            justify-content: center;
+            padding: 60px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ФОНОВАЯ СЕТКА */
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), 
+                              linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            mask-image: radial-gradient(circle, black, transparent 80%);
+        }
+
+        /* БОКОВАЯ НАВИГАЦИЯ */
+        .side-nav {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
             gap: 15px;
         }
-        .message-input {
-            flex-grow: 1;
-            padding: 12px 18px;
-            border-radius: 24px;
+        .nav-dot {
+            width: 10px; height: 10px; border: 1px solid var(--primary);
+            border-radius: 50%; cursor: pointer; transition: 0.3s;
+        }
+        .nav-dot.active { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+
+        /* --- ШАБЛОНЫ ЭЛЕМЕНТОВ (БИБЛИОТЕКА) --- */
+
+        /* 1. Техно-Заголовок */
+        .hero-title { font-size: 6vw; font-weight: 900; line-height: 0.8; letter-spacing: -4px; }
+        .glitch-text { position: relative; color: var(--primary); }
+
+        /* 2. Карточка "Манифест расширения" */
+        .manifest-card {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
             border: 1px solid var(--border);
-            outline: none;
-            background: var(--bg-main);
+            padding: 25px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            width: 400px;
+        }
+        .manifest-header { color: var(--secondary); margin-bottom: 15px; font-size: 12px; }
+        .code-key { color: var(--primary); }
+        .code-val { color: #e6db74; }
+
+        /* 3. Визуализация Нод (Graph Element) */
+        .nodes-viz {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            height: 100px;
+        }
+        .node-bar {
+            width: 20px;
+            background: var(--primary);
+            border-radius: 2px 2px 0 0;
+            animation: pulse 2s infinite alternate;
         }
 
-        /* Адаптивность для мобильных устройств */
-        @media (max-width: 900px) {
-            .app-container { grid-template-columns: 0 1fr 0; }
-            .nav-rail, .main-chat { display: none; }
+        /* 4. Бейдж статуса безопасности */
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(0, 255, 100, 0.1);
+            border: 1px solid #00ff64;
+            color: #00ff64;
+            border-radius: 100px;
+            font-size: 12px;
+            text-transform: uppercase;
         }
+
+        /* 5. Bento Grid внутри карточки */
+        .inner-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 1200px;
+        }
+        .info-block {
+            background: var(--surface);
+            padding: 20px;
+            border-left: 3px solid var(--secondary);
+        }
+
+        /* АНИМАЦИИ */
+        @keyframes pulse { from { opacity: 0.3; height: 20%; } to { opacity: 1; height: 100%; } }
+
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <nav class="nav-rail">
-            <div class="nav-item"></div>
-            <div class="nav-item"></div>
-            <div class="nav-item" style="margin-top: auto;"></div>
-        </nav>
+    <nav class="side-nav">
+        <div class="nav-dot active"></div>
+        <div class="nav-dot"></div>
+        <div class="nav-dot"></div>
+        <div class="nav-dot"></div>
+    </nav>
 
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <input type="text" class="search-bar" placeholder="Поиск чатов...">
+    <div class="snap-container">
+        
+        <section id="hero">
+            <div class="grid-bg"></div>
+            <div style="text-align: center;">
+                <div class="security-badge">E2EE Protocol Active</div>
+                <h1 class="hero-title">NEXUS<br><span class="glitch-text">ENGINE</span></h1>
+                <p style="margin-top: 20px; color: #888; font-family: var(--font-mono);">[ SYSTEM READY FOR DEPLOYMENT ]</p>
             </div>
-            <div class="chat-list">
-                <div class="chat-item">
-                    <div class="avatar"></div>
-                    <div class="chat-info">
-                        <div class="chat-name">Имя пользователя</div>
-                        <div class="chat-last-msg">Текст последнего сообщения, который может быть очень длинным...</div>
+        </section>
+
+        <section id="extensions">
+            <div style="display: flex; gap: 50px; align-items: center; max-width: 1200px;">
+                <div style="flex: 1;">
+                    <h2 style="font-size: 3rem; margin-bottom: 20px;">WASM Extensibility</h2>
+                    <p style="color: #ccc; margin-bottom: 30px;">Пишите модули на Rust, C++ или Zig. Nexus ядро исполняет их в изолированных песочницах с нулевой задержкой.</p>
+                    <div class="nodes-viz">
+                        <div class="node-bar" style="height: 40%; animation-delay: 0.1s;"></div>
+                        <div class="node-bar" style="height: 80%; animation-delay: 0.3s;"></div>
+                        <div class="node-bar" style="height: 60%; animation-delay: 0.5s;"></div>
+                        <div class="node-bar" style="height: 90%; animation-delay: 0.2s;"></div>
                     </div>
                 </div>
-                <div class="chat-item">
-                    <div class="avatar"></div>
-                    <div class="chat-info"><div class="chat-name">Группа разработки</div><div class="chat-last-msg">Ок, пушим в мастер.</div></div>
+                
+                
+                <div class="manifest-card">
+                    <div class="manifest-header">// extension_manifest.json</div>
+                    <div><span class="code-key">"id"</span>: <span class="code-val">"neural_filter_v4"</span>,</div>
+                    <div><span class="code-key">"runtime"</span>: <span class="code-val">"wasm32-unknown"</span>,</div>
+                    <div><span class="code-key">"permissions"</span>: [</div>
+                    <div style="padding-left: 20px;"><span class="code-val">"audio_stream"</span>,</div>
+                    <div style="padding-left: 20px;"><span class="code-val">"metadata_inject"</span></div>
+                    <div>],</div>
+                    <div><span class="code-key">"auto_scaling"</span>: <span class="code-val">true</span></div>
                 </div>
             </div>
-        </aside>
+        </section>
 
-        <main class="main-chat">
-            <header class="chat-header">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="avatar" style="width: 40px; height: 40px;"></div>
-                    <div class="chat-name" style="margin: 0;">Выбранный чат</div>
+        <section id="infra">
+            <div class="inner-grid">
+                <div class="info-block" style="grid-column: span 2;">
+                    <h3>Decentralized Relay Nodes</h3>
+                    <p style="color: #888; margin-top: 10px;">Nexus использует алгоритм консенсуса для маршрутизации трафика через ближайшие свободные узлы.</p>
+                    <div style="margin-top: 20px; height: 150px; border: 1px dashed var(--primary); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                        [ КАРТА ПОТОКОВ ДАННЫХ ]
+                    </div>
                 </div>
-                <div class="chat-actions">...</div>
-            </header>
-
-            <div class="messages-container">
-                <div class="message incoming">Привет! Как продвигается проект?</div>
-                <div class="message outgoing">Привет! Почти закончил верстку шаблонов.</div>
-                <div class="message incoming">Отлично, жду обновлений.</div>
+                <div class="info-block">
+                    <h3>P2P Latency</h3>
+                    <div style="font-size: 48px; font-weight: bold; color: var(--primary);">4ms</div>
+                    <p style="font-size: 12px; color: #555;">Global average on 5G/Fiber</p>
+                </div>
+                <div class="info-block">
+                    <div class="security-badge" style="border-color: var(--secondary); color: var(--secondary);">High Load</div>
+                    <h4 style="margin-top: 10px;">Sharding Status</h4>
+                    <div style="width: 100%; height: 5px; background: #222; margin-top: 10px;">
+                        <div style="width: 75%; height: 100%; background: var(--secondary);"></div>
+                    </div>
+                </div>
+                <div class="info-block" style="grid-column: span 2;">
+                    <h3>Open API Endpoints</h3>
+                    <code style="font-size: 12px; display: block; margin-top: 10px; background: #000; padding: 10px;">
+                        GET /v1/node/status -> { "uptime": "99.998%", "load": 0.23 }
+                    </code>
+                </div>
             </div>
+        </section>
 
-            <footer class="input-area">
-                <button style="border:none; background:none; cursor:pointer;">📎</button>
-                <input type="text" class="message-input" placeholder="Напишите сообщение...">
-                <button style="border:none; color: var(--primary); font-weight:bold; background:none; cursor:pointer;">ОТПРАВИТЬ</button>
-            </footer>
-        </main>
+        <section id="cta">
+            <div style="text-align: center;">
+                <h2 style="font-size: 4rem; margin-bottom: 20px;">Become the Operator.</h2>
+                <div style="display: flex; gap: 20px; justify-content: center;">
+                    <button style="padding: 20px 50px; background: #fff; color: #000; border: none; font-weight: bold; cursor: pointer;">DOWNLOAD CLIENT</button>
+                    <button style="padding: 20px 50px; background: transparent; border: 1px solid #fff; color: #fff; cursor: pointer;">READ WHITEPAPER</button>
+                </div>
+                <p style="margin-top: 40px; color: #444; font-size: 12px;">Nexus OS is licensed under Apache 2.0. No data collection. Ever.</p>
+            </div>
+        </section>
     </div>
 
+    <script>
+        // Простой скрипт для обновления активной точки при скролле
+        const container = document.querySelector('.snap-container');
+        const dots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('section');
+
+        container.addEventListener('scroll', () => {
+            const scrollPos = container.scrollTop;
+            sections.forEach((section, index) => {
+                if (scrollPos >= section.offsetTop - 100) {
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    dots[index].classList.add('active');
+                }
+            });
+        });
+
+        // Клик по точкам для перехода
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                sections[index].scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
 </body>
 </html>
