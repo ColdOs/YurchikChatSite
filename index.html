@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Messenger Template</title>
+    <style>
+        :root {
+            --bg-main: #f0f2f5;
+            --bg-side: #ffffff;
+            --primary: #0084ff;
+            --text-main: #1c1e21;
+            --text-muted: #65676b;
+            --border: #e4e6eb;
+            --msg-in: #e4e6eb;
+            --msg-out: #0084ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg-main); height: 100vh; overflow: hidden; }
+
+        /* Основной контейнер-сетка */
+        .app-container {
+            display: grid;
+            grid-template-columns: 80px 350px 1fr;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* 1. Глобальная навигация (иконки сервисов) */
+        .nav-rail {
+            background: #242526;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 20px;
+        }
+        .nav-item { width: 48px; height: 48px; background: #3a3b3c; border-radius: 12px; cursor: pointer; }
+
+        /* 2. Список чатов */
+        .sidebar {
+            background: var(--bg-side);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
+        .search-bar { width: 100%; padding: 10px; border-radius: 20px; border: none; background: var(--bg-main); }
+        
+        .chat-list { overflow-y: auto; flex-grow: 1; }
+        .chat-item { 
+            display: flex; padding: 15px; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s;
+        }
+        .chat-item:hover { background: var(--bg-main); }
+        .avatar { width: 48px; height: 48px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+        .chat-info { flex-grow: 1; overflow: hidden; }
+        .chat-name { font-weight: 600; margin-bottom: 4px; }
+        .chat-last-msg { font-size: 0.9em; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* 3. Основная область чата */
+        .main-chat {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-side);
+        }
+        .chat-header { 
+            height: 64px; border-bottom: 1px solid var(--border); 
+            display: flex; align-items: center; padding: 0 20px; justify-content: space-between;
+        }
+
+        /* Область сообщений */
+        .messages-container {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message { max-width: 60%; padding: 10px 16px; border-radius: 18px; font-size: 0.95em; position: relative; }
+        .message.incoming { align-self: flex-start; background: var(--msg-in); color: var(--text-main); border-bottom-left-radius: 4px; }
+        .message.outgoing { align-self: flex-end; background: var(--msg-out); color: white; border-bottom-right-radius: 4px; }
+
+        /* Поле ввода */
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .message-input {
+            flex-grow: 1;
+            padding: 12px 18px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            outline: none;
+            background: var(--bg-main);
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 900px) {
+            .app-container { grid-template-columns: 0 1fr 0; }
+            .nav-rail, .main-chat { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <nav class="nav-rail">
+            <div class="nav-item"></div>
+            <div class="nav-item"></div>
+            <div class="nav-item" style="margin-top: auto;"></div>
+        </nav>
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <input type="text" class="search-bar" placeholder="Поиск чатов...">
+            </div>
+            <div class="chat-list">
+                <div class="chat-item">
+                    <div class="avatar"></div>
+                    <div class="chat-info">
+                        <div class="chat-name">Имя пользователя</div>
+                        <div class="chat-last-msg">Текст последнего сообщения, который может быть очень длинным...</div>
+                    </div>
+                </div>
+                <div class="chat-item">
+                    <div class="avatar"></div>
+                    <div class="chat-info"><div class="chat-name">Группа разработки</div><div class="chat-last-msg">Ок, пушим в мастер.</div></div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-chat">
+            <header class="chat-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="avatar" style="width: 40px; height: 40px;"></div>
+                    <div class="chat-name" style="margin: 0;">Выбранный чат</div>
+                </div>
+                <div class="chat-actions">...</div>
+            </header>
+
+            <div class="messages-container">
+                <div class="message incoming">Привет! Как продвигается проект?</div>
+                <div class="message outgoing">Привет! Почти закончил верстку шаблонов.</div>
+                <div class="message incoming">Отлично, жду обновлений.</div>
+            </div>
+
+            <footer class="input-area">
+                <button style="border:none; background:none; cursor:pointer;">📎</button>
+                <input type="text" class="message-input" placeholder="Напишите сообщение...">
+                <button style="border:none; color: var(--primary); font-weight:bold; background:none; cursor:pointer;">ОТПРАВИТЬ</button>
+            </footer>
+        </main>
+    </div>
+
+</body>
+</html>
